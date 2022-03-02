@@ -1,21 +1,21 @@
 renderGameBox = false;
 renderBoard = false;
 renderRules = false;
-renderPawns = true;
-renderTiles = true;
-renderPlayersBoard = true;
+renderPawns = false;
+renderTiles = false;
+renderPlayersBoard = false;
 renderTokens = false;
-renderScoringTiles = true;
-renderSpellCards = true;
-renderTraitCards = true;
-renderAutomatCards = true;
-renderAutomatLocationCards = true;
-renderGoonsCards = true;
-renderItemsCards = true;
-renderPlayerHelpCards = true;
-renderLeaderCards = true;
-renderEndGameCards = true;
-renderInstantCards = true;
+renderScoringTiles = false;
+renderSpellCards = false;
+renderTraitCards = false;
+renderAutomatCards = false;
+renderAutomatLocationCards = false;
+renderGoonsCards = false;
+renderItemsCards = false;
+renderPlayerHelpCards = false;
+renderLeaderCards = false;
+renderEndGameCards = false;
+renderInstantCards = false;
 renderCrown = true;
 renderHorn = true;
 renderBreakoutExpansion = false;
@@ -54,6 +54,74 @@ breakoutColor = "Navy";
 cardGap = 3;
 topAlignment = 28 + 26;
 
+module organizerInner() {
+    echo("Generating organizer inner");
+    width = 215;
+    depth = 306;
+    height = 70-10-1-2;
+    
+    cube([width, depth, height]);
+}
+module organizer() {
+    difference() {
+        organizerInner();
+        playersBoardOuter();
+        translate([215-32-32,2,19]) {
+            playerTilesSetOuter();
+        }
+        translate([215-32-32,2+32,19]) {
+            playerTilesSetOuter();
+        }
+        translate([215-32-32,2+32+32,19]) {
+            playerTilesSetOuter();
+        }
+        translate([215-32,2+32,19]) {
+            playerTilesSetOuter();
+        }
+        translate([215-32,2+32+32,19]) {
+            playerTilesSetOuter();
+        }
+        translate([215-32,2,topAlignment - (6*2.1)+1]) {
+            playersScoringTilesOuter();
+        }
+        translate([2,117,8]) {
+            spellCardsOuter();
+        }
+        translate([2+22,117,8]) {
+            traitCardsOuter();
+        }
+        translate([2+22+15,117,8]) {
+            goonCardsOuter();
+        }
+        translate([2+22+15+23,117,8]) {
+            itemCardsOuter();
+        }
+        translate([2+22+15+23+22,117,8]) {
+            leaderCardsOuter();
+        }
+        translate([2+22+15+23+22+8,117,8]) {
+            endGameCardsOuter();
+        }
+        translate([2+22+15+23+22+8+7,117,8]) {
+            instantCardsOuter();
+        }
+        translate([2+22+83,117,8]) {
+            playerHelpCardsOuter();
+        }
+        translate([215-2-7,117,8]) {
+            automatLocationCardsOuter();
+        }
+        translate([215-2-7-17,117,8]) {
+            automatCardsOuter();
+        }
+        translate([125,157,topAlignment+2-7]) {
+            rotate([90,270,0]) {
+                pawnsSetOuter();
+            }
+        }
+    }
+}
+
 module tile(color, acrylic) {
     echo("Generating ", color, " tile", "acrylic", acrylic);
     width = 29;
@@ -71,19 +139,27 @@ module playerTilesSet(color, acrylic) {
     echo("Generating acrylic tiles set for player", color, "acrylic", acrylic);
     tilesQty = 7;
     if (acrylic) {
-        translate([0,0,-3.2]) {
+        translate([0,0,-3.1]) {
             for (a = [1:tilesQty]) {
-                translate([0,0,3.2*a]) {
+                translate([0,0,3.1*a]) {
                     tile(color, acrylic);
                 }
             }
         }
     } else {
         for (a = [1:tilesQty]) {
-            translate([0,0,2.2*(a-1)]) {
+            translate([0,0,2.1*(a-1)]) {
                 tile(color, acrylic);
             }
         }
+    }
+}
+module playerTilesSetOuter() {
+    width = 31;
+    depth = width;
+    height = (7 * (2.1+3.1)) + 1;
+    translate([0,0,1]) {
+        cube([width, depth, height]);
     }
 }
 
@@ -101,13 +177,20 @@ module playersTilesSet(acrylic = false) {
 module playersScoringTiles() {
     echo("Generating players scoring tiles set");
     for (a = [1:len(playersColors)]) {
-        translate([0, 0, (a-1)*2.2]) {
+        translate([0, 0, (a-1)*2.1]) {
             tile(playersColors[a-1], false);
         }
     }
-    translate([0, 0, len(playersColors) * 2.2]) {
+    translate([0, 0, len(playersColors) * 2.1]) {
         tile(automatColor, false);
     }
+}
+module playersScoringTilesOuter() {
+    width = 31;
+    depth = 31;
+    height = (len(playersColors) + 1) * 2.1 + 3;
+    
+    cube([width, depth, height]);
 }
 module playerBoard(color) {
     echo("Generating ", color, " board");
@@ -115,18 +198,26 @@ module playerBoard(color) {
     depth = 110;
     height = 2;
     color(color) {
-        cube([width, depth, 3]);
+        cube([width, depth, height]);
     }
 }
 
 module playersBoard() {
     echo("Generating players board");
-    translate([0,0,-2.2]) {
-        for (a = [1:len(playersColors)]) {
-            translate([0,0,2.2*a]) {
-                playerBoard(playersColors[a-1]);
-            }
+    for (a = [1:len(playersColors)]) {
+        translate([0,0,2.2*(a-1)]) {
+            playerBoard(playersColors[a-1]);
         }
+    }
+}
+module playersBoardOuter() {
+    echo("Generating players board outer box");
+    width = 140 + 4;
+    depth = 110 + 4;
+    height = (len(playersColors) * 2.2) + 4;
+    
+    translate([-1,1,1]) {
+        cube([width, depth, height]);
     }
 }
 
@@ -148,6 +239,13 @@ module pawnsSet() {
                 pawn(playersColors[a-1]);
             }
         }
+    }
+}
+module pawnsSetOuter() {
+    height = (len(playersColors) * 7) + 2;
+    cylinder(height, 4.5*2, 4.5*2);
+    translate([0,-9,0]) {
+        cube([9+2,9*2,height]);
     }
 }
 module token(color) {
@@ -195,6 +293,14 @@ module spellCards(sleeved = false) {
         }
     }
 }
+module spellCardsOuter() {
+    width = 21;
+    depth = 72;
+    height = 50;
+    
+    cube([width, depth, height]);
+}
+
 module traitCards(sleeved = false) {
     color(traitCardsColor) {
         if (sleeved) {
@@ -207,6 +313,13 @@ module traitCards(sleeved = false) {
         }
     }
 }
+module traitCardsOuter() {
+    width = 14;
+    depth = 72;
+    height = 50;
+    
+    cube([width, depth, height]);
+}
 module automatCards(sleeved = false) {
     color(automatCardsColor) {
         if (sleeved) {
@@ -218,6 +331,13 @@ module automatCards(sleeved = false) {
             echo("ATTENTION: Please provide dimensions for non-sleeved automat cards");
         }
     }
+}
+module automatCardsOuter() {
+    width = 16;
+    depth = 72;
+    height = 50;
+    
+    cube([width, depth, height]);
 }
 module automatLocationCards(sleeved = false) {
     echo("Generating automat location cards");
@@ -232,6 +352,13 @@ module automatLocationCards(sleeved = false) {
         }
     }
 }
+module automatLocationCardsOuter() {
+    width = 8;
+    depth = 72;
+    height = 50;
+    
+    cube([width, depth, height]);
+}
 module playerHelpCards(sleeved = false) {
     color(playerHelpCardsColor) {
         if (sleeved) {
@@ -243,6 +370,13 @@ module playerHelpCards(sleeved = false) {
             echo("ATTENTION: Please provide dimensions for non-sleeved player help cards");
         }
     }
+}
+module playerHelpCardsOuter() {
+    width = 6;
+    depth = 72;
+    height = 50;
+    
+    cube([width, depth, height]);
 }
 module goonCards(sleeved = false) {
     color(goonCardsColor) {
@@ -256,6 +390,13 @@ module goonCards(sleeved = false) {
         }
     }
 }
+module goonCardsOuter() {
+    width = 22;
+    depth = 72;
+    height = 50;
+    
+    cube([width, depth, height]);
+}
 module itemCards(sleeved = false) {
     color(leaderCardsColor) {
         if (sleeved) {
@@ -267,6 +408,13 @@ module itemCards(sleeved = false) {
             echo("ATTENTION: Please provide dimensions for non-sleeved item cards");
         }
     }
+}
+module itemCardsOuter() {
+    width = 21;
+    depth = 72;
+    height = 50;
+    
+    cube([width, depth, height]);
 }
 module leaderCards(sleeved = false) {
     color(leaderCardsColor) {
@@ -280,6 +428,13 @@ module leaderCards(sleeved = false) {
         }
     }
 }
+module leaderCardsOuter() {
+    width = 7;
+    depth = 72;
+    height = 50;
+    
+    cube([width, depth, height]);
+}
 module endGameCards(sleeved = false) {
     color(endGameCardsColor) {
         if (sleeved) {
@@ -292,6 +447,13 @@ module endGameCards(sleeved = false) {
         }
     }
 }
+module endGameCardsOuter() {
+    width = 6;
+    depth = 72;
+    height = 50;
+    
+    cube([width, depth, height]);
+}
 module instantCards(sleeved = false) {
     color(instantCardsColor) {
         if (sleeved) {
@@ -303,6 +465,13 @@ module instantCards(sleeved = false) {
             echo("ATTENTION: Please provide dimensions for non-sleeved instant cards");
         }
     }
+}
+module instantCardsOuter() {
+    width = 7;
+    depth = 72;
+    height = 50;
+    
+    cube([width, depth, height]);
 }
 module crown() {
     echo("Generating crown");
@@ -351,6 +520,8 @@ module tilesHolders() {
             tilesHolder(playersColors[a-1]);
         }
     }
+}
+module tilesHoldersOuter() {
 }
 module rules() {
     echo("Generating rules");
@@ -420,24 +591,26 @@ if(renderRules) {
     }
 }
 if(renderPawns) {
-    translate([19 + cardGap + 12 + cardGap + 20 + cardGap + 19 + cardGap + 5 + cardGap + 4 + cardGap + 5 + cardGap + 20, 110 + 6 + (70/2) + 5, topAlignment - 3.5*2 - 1]) {
+    translate([19 + cardGap + 12 + cardGap + 20 + cardGap + 19 + cardGap + 5 + cardGap + 4 + cardGap + 5 + cardGap + 20, 110 + 6 + (70/2) + 5, topAlignment - 3.5*2 - 1+ 3]) {
         rotate([90,0,0]) {
             pawnsSet();
         }
     }
 }
 if(renderTiles) {
-    translate([142, 32+32+29, topAlignment-(7*3.2)-(7*2.2)]) {
+    translate([215-32-32+1, 32+32+29+3, topAlignment-(7*3.1)-(7*2.1)+2]) {
         rotate([0,0,270]) {
             playersTilesSet();
-            translate([0, 0, 15.6]) {
+            translate([0, 0, 7*2.1]) {
                 playersTilesSet(true);
             }
         }
     }
 }
 if(renderPlayersBoard) {
-    playersBoard();
+    translate([2,3,3]) {
+        playersBoard();
+    }
 }
 if(renderTokens) {
     translate([200,0,0]) {
@@ -445,11 +618,11 @@ if(renderTokens) {
     }
 }
 if(renderScoringTiles) {
-    translate([142+32, 0, topAlignment - (6*2.2)]) {
+    translate([215-32+1, 3, topAlignment - (6*2.1)+2]) {
         playersScoringTiles();
     }
 }
-translate([0,110+6,topAlignment]) {
+translate([3,110+8,topAlignment+2+10]) {
 if(renderSpellCards) {
     rotate([0,90,0]) {
         spellCards(true);
@@ -506,14 +679,14 @@ if(renderPlayerHelpCards) {
     }
 }
 if(renderAutomatCards) {
-    translate([120+19 + cardGap + 12 + cardGap + 20 + cardGap, 0, 0]) {
+    translate([215-7.5-cardGap - 7*1.5 - cardGap-cardGap-1, 0, 0]) {
         rotate([0,90,0]) {
             automatCards(true);
         }
     }
 }
 if(renderAutomatLocationCards) {
-    translate([120+19 + cardGap + 12 + cardGap + 20 + cardGap + 14 + cardGap, 0, 0]) {
+    translate([215-7.5-cardGap, 0, 0]) {
         rotate([0,90,0]) {
             automatLocationCards(true);
         }
@@ -540,3 +713,4 @@ if(renderTilesHolders) {
         tilesHolders();
     }
 }
+//organizer();
